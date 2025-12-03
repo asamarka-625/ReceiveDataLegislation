@@ -6,6 +6,7 @@ from apscheduler.triggers.interval import IntervalTrigger
 from app.crud import sql_inner_add_legislation, sql_outer_get_ready_legislation, sql_outer_delete_legislation
 from app.request import post_unloaded_data
 from app.config import get_config
+from app.database import setup_database
 
 
 config = get_config()
@@ -41,6 +42,8 @@ async def parser_db():
 
 # Запуск планировщика задач
 async def start_scheduler():
+    await setup_database()
+
     scheduler = AsyncIOScheduler()
 
     # Добавляем задачу, которая будет выполняться каждые 5 минут
