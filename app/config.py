@@ -19,6 +19,8 @@ class Config:
     CONTROLLER: str = field(default_factory=lambda: os.getenv("CONTROLLER"))
     UNLOADED_DATA: str = field(init=False)
 
+    LIMIT_DB_DATA: int = field(default_factory=lambda: int(os.getenv("LIMIT_DB_DATA")))
+
     def __post_init__(self):
         self.logger = setup_logger(
             level=os.getenv("LOG_LEVEL", "INFO"),

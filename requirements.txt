@@ -10,3 +10,4 @@ python-dotenv==1.2.1
 SQLAlchemy==2.0.44
 typing_extensions==4.15.0
 tzlocal==5.3.1
+asyncpg==0.31.0

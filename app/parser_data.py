@@ -16,21 +16,24 @@ async def parser_db():
     try:
         config.logger.info("Начало выполнения parser_db()")
 
-        legislation_ready = await sql_outer_get_ready_legislation()
+        legislation_ready = await sql_outer_get_ready_legislation(limit=config.LIMIT_DB_DATA)
 
-        loaded_legislation_ids = []
-        for legislation in legislation_ready:
-            flag_loaded = await sql_inner_add_legislation(legislation)
+        while legislation_ready:
+            loaded_legislation_ids = []
+            for legislation in legislation_ready:
+                flag_loaded = await sql_inner_add_legislation(legislation)
+    
+                if flag_loaded:
+                    loaded_legislation_ids.append(legislation.id)
+    
+            if loaded_legislation_ids:
+                await post_unloaded_data(count=len(loaded_legislation_ids))
+    
+                await sql_outer_delete_legislation(loaded_legislation_ids)
+    
+            config.logger.info(f"Завершение parser_db(). Добавлено {len(loaded_legislation_ids)} записей")
 
-            if flag_loaded:
-                loaded_legislation_ids.append(legislation.id)
-
-        if loaded_legislation_ids:
-            await post_unloaded_data(count=len(loaded_legislation_ids))
-
-            await sql_outer_delete_legislation(loaded_legislation_ids)
-
-        config.logger.info(f"Завершение parser_db(). Добавлено {len(loaded_legislation_ids)} записей")
+            legislation_ready = await sql_outer_get_ready_legislation(limit=config.LIMIT_DB_DATA)
 
     except Exception as e:
         config.logger.error(f"Ошибка в parser_db(): {str(e)}")
@@ -43,9 +46,9 @@ async def start_scheduler():
     # Добавляем задачу, которая будет выполняться каждые 5 минут
     scheduler.add_job(
         parser_db,
-        trigger=IntervalTrigger(minutes=5),
+        trigger=IntervalTrigger(minutes=15),
         id='parse_db_job',
-        name='Парсинг базы данных каждые 5 минут',
+        name='Парсинг базы данных каждые 15 минут',
         replace_existing=True,
         max_instances=1  # Не запускать параллельно, если задача еще выполняется
     )

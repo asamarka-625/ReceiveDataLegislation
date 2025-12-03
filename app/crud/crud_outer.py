@@ -14,7 +14,7 @@ config = get_config()
 
 # Берем готовые к выгрузке данные
 @connection_outer
-async def sql_outer_get_ready_legislation(session: AsyncSession) -> List[DataLegislation]:
+async def sql_outer_get_ready_legislation(limit: int, session: AsyncSession) -> List[DataLegislation]:
     try:
         legislation_result = await session.execute(
             sa.select(DataLegislation)
@@ -22,6 +22,7 @@ async def sql_outer_get_ready_legislation(session: AsyncSession) -> List[DataLeg
                 DataLegislation.binary_pdf != None,
                 DataLegislation.text != None
             )
+            .limit(limit)
         )
         legislation = legislation_result.scalars().all()
 
