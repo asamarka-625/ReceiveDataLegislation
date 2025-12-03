@@ -22,7 +22,7 @@ async def setup_database():
         await conn.run_sync(Base.metadata.create_all)
 
     config.logger.info(f"Инициализируем таблицы inner")
-    async with engine_outer.begin() as conn:
+    async with engine_inner.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
 
