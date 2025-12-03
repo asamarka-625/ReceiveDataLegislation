@@ -1,0 +1,1 @@
+from app.parser_data import start_scheduler
