@@ -47,9 +47,9 @@ async def start_scheduler():
     # Добавляем задачу, которая будет выполняться каждые 5 минут
     scheduler.add_job(
         parser_db,
-        trigger=IntervalTrigger(minutes=15),
+        trigger=IntervalTrigger(minutes=config.PERIOD_MINUTES),
         id='parse_db_job',
-        name='Парсинг базы данных каждые 15 минут',
+        name=f'Парсинг базы данных каждые {config.PERIOD_MINUTES} минут',
         replace_existing=True,
         max_instances=1  # Не запускать параллельно, если задача еще выполняется
     )

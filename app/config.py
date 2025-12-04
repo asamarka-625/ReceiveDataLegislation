@@ -20,6 +20,7 @@ class Config:
     DELETE_LEGISLATION_READY: str = field(init=False)
 
     LEGISLATION_LIMIT: int = field(default_factory=lambda: int(os.getenv("LEGISLATION_LIMIT")))
+    PERIOD_MINUTES: int = field(default_factory=lambda: int(os.getenv("PERIOD_MINUTES")))
 
     def __post_init__(self):
         self.logger = setup_logger(
