@@ -1,2 +1,0 @@
-from app.crud.crud_outer import sql_outer_get_ready_legislation, sql_outer_delete_legislation
-from app.crud.crud_inner import sql_inner_add_legislation

@@ -3,8 +3,8 @@ import asyncio
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 # Внутренние модули
-from app.crud import sql_inner_add_legislation, sql_outer_get_ready_legislation, sql_outer_delete_legislation
-from app.request import post_unloaded_data
+from app.crud import sql_add_legislation
+from app.request import get_ready_legislation, delete_ready_legislation
 from app.config import get_config
 from app.database import setup_database
 
@@ -17,24 +17,22 @@ async def parser_db():
     try:
         config.logger.info("Начало выполнения parser_db()")
 
-        legislation_ready = await sql_outer_get_ready_legislation(limit=config.LIMIT_DB_DATA)
+        legislation_ready = await get_ready_legislation()
 
         while legislation_ready:
             loaded_legislation_ids = []
             for legislation in legislation_ready:
-                flag_loaded = await sql_inner_add_legislation(legislation)
-    
+                flag_loaded = await sql_add_legislation(legislation)
+
                 if flag_loaded:
                     loaded_legislation_ids.append(legislation.id)
-    
+
             if loaded_legislation_ids:
-                await post_unloaded_data(count=len(loaded_legislation_ids))
-    
-                await sql_outer_delete_legislation(loaded_legislation_ids)
+                await delete_ready_legislation(legislation_ids=loaded_legislation_ids)
     
             config.logger.info(f"Завершение parser_db(). Добавлено {len(loaded_legislation_ids)} записей")
 
-            legislation_ready = await sql_outer_get_ready_legislation(limit=config.LIMIT_DB_DATA)
+            legislation_ready = await get_ready_legislation()
 
     except Exception as e:
         config.logger.error(f"Ошибка в parser_db(): {str(e)}")

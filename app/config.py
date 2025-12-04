@@ -12,14 +12,14 @@ load_dotenv()
 
 @dataclass
 class Config:
-    _database_outer_url: str = field(default_factory=lambda: os.getenv("DATABASE_OUTER_URL"))
-    _database_inner_url: str = field(default_factory=lambda: os.getenv("DATABASE_INNER_URL"))
+    _database_url: str = field(default_factory=lambda: os.getenv("DATABASE_URL"))
     logger: logging.Logger = field(init=False)
 
     CONTROLLER: str = field(default_factory=lambda: os.getenv("CONTROLLER"))
-    UNLOADED_DATA: str = field(init=False)
+    GET_LEGISLATION_READY: str = field(init=False)
+    DELETE_LEGISLATION_READY: str = field(init=False)
 
-    LIMIT_DB_DATA: int = field(default_factory=lambda: int(os.getenv("LIMIT_DB_DATA")))
+    LEGISLATION_LIMIT: int = field(default_factory=lambda: int(os.getenv("LEGISLATION_LIMIT")))
 
     def __post_init__(self):
         self.logger = setup_logger(
@@ -28,37 +28,26 @@ class Config:
             log_file=os.getenv("LOG_FILE", "parser_log")
         )
 
-        self.UNLOADED_DATA: str = f"{self.CONTROLLER}/api/v1/db/unloaded"
+        self.GET_LEGISLATION_READY: str = f"{self.CONTROLLER}/api/v1/legislation/ready"
+        self.DELETE_LEGISLATION_READY: str = f"{self.CONTROLLER}/api/v1/legislation/ready/delete"
 
         self.validate()
         self.logger.info("Configuration initialized")
 
     # Валидация конфигурации
     def validate(self):
-        if not self._database_outer_url:
-            self.logger.critical("DATABASE_OUTER_URL is required in environment variables")
-            raise ValueError("DATABASE_OUTER_URL is required")
-
-        if not self._database_inner_url:
-            self.logger.critical("DATABASE_INNER_URL is required in environment variables")
-            raise ValueError("DATABASE_INNER_URL is required")
+        if not self._database_url:
+            self.logger.critical("DATABASE_URL is required in environment variables")
+            raise ValueError("DATABASE_URL is required")
 
         self.logger.debug("Configuration validation passed")
 
     @property
-    def DATABASE_OUTER_URL(self) -> str:
-        return self._database_outer_url
-
-    @property
-    def DATABASE_INNER_URL(self) -> str:
-        return self._database_inner_url
+    def DATABASE_URL(self) -> str:
+        return self._database_url
 
     def __str__(self) -> str:
-        return f"""
-        Config(database_outer={self._database_outer_url}, 
-        database_inner={self._database_inner_url}, 
-        log_level={self.logger.level})
-        """
+        return f"Config(database={self._database_url}, log_level={self.logger.level})"
 
 
 _instance = None
