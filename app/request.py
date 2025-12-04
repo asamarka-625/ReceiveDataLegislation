@@ -41,7 +41,7 @@ async def get_ready_legislation() -> List[Dict[str, Any]]:
 async def delete_ready_legislation(legislation_ids: List[int]) -> None:
     async with httpx.AsyncClient() as client:
         try:
-            response = await client.patch(
+            response = await client.delete(
                 config.DELETE_LEGISLATION_READY,
                 json={
                     "ids": legislation_ids
