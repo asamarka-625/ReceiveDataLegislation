@@ -7,6 +7,7 @@ from app.crud import sql_add_legislation
 from app.request import get_ready_legislation, delete_ready_legislation
 from app.config import get_config
 from app.database import setup_database
+from app.utils import get_binary_bytes
 
 
 config = get_config()
@@ -22,10 +23,11 @@ async def parser_db():
         while legislation_ready:
             loaded_legislation_ids = []
             for legislation in legislation_ready:
+                legislation["binary_pdf"] = get_binary_bytes(legislation["binary_pdf"])
                 flag_loaded = await sql_add_legislation(legislation)
 
                 if flag_loaded:
-                    loaded_legislation_ids.append(legislation.id)
+                    loaded_legislation_ids.append(legislation["id"])
 
             if loaded_legislation_ids:
                 await delete_ready_legislation(legislation_ids=loaded_legislation_ids)
