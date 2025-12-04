@@ -8,7 +8,7 @@ from app.models import Base
 # Получаем конфиг
 config = get_config()
 
-engine = create_async_engine(config.DATABASE_INNER_URL)
+engine = create_async_engine(config.DATABASE_URL)
 AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 
 
